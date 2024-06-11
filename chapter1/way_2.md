@@ -143,3 +143,11 @@ class Circle:
 
 ## Import 
 
+- import문, from이 포함된 import문 모두 항상 `파일의 맨 앞에 위치`시킨다
+- import할 때는 `절대적인 이름`을 사용한다. 현재 모듈의 경로를 기준으로한 상대적인 이름은 사용하지 않는다.
+  - ex. bar 패키지의 foo 모듈을 import
+      - from bar import foo (O)
+      - import foo(X)
+- 상대적인 경로를 사용해야 한다면 `from . import foo`와 같이 명시적인 구문을 사용한다.
+- import를 쓸 때 `표준 라이브러리 모듈`, `third 파티 모듈`, `내가 만든 모듈` 순서로 섹션을 나눈다.
+    - 각 섹션에서는 `알파벳 순서`로 모듈을 import한다.  
