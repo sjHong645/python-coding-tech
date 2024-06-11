@@ -109,5 +109,37 @@ class Circle:
 
 ## Expression(식)과 Statements(문)
 
+- 긍정적인 식을 부정하지 말고 부정을 내부에 넣어라
+  - ex. `if not a is b` => `if a is not b`(권장하는 방법)
+- 빈 컨테이너 또는 시퀀스를 검사할 때 길이를 0과 비교(if len(something) == 0)하지 말아라.
+  - `빈 컨테이너 또는 시퀀스`는 암묵적으로 `False로 취급`된다는 사실을 활용할 것
+  - 이를 활용해 `if not 컨테이너` 조건문을 사용할 것
+  - `비어있지 않다`면 `True로 취급`한다는 사실을 활용할 것
+ 
+- 한 줄짜리 if문 / 한 줄짜리 for, while 루프 / 한 줄짜리 except 복합문을 사용하지 말 것
+  - 명확성을 위해서 각 부분을 여러 줄에 나눠 배치할 것
+    ``` python
+      # if문을 사용하는 방식 
+      if foo == 'blah':
+          do_blah_thing()
+      do_one()
+      do_two()
+      do_three()
 
-  
+      # for, while문을 사용하는 방식
+      for x in lst:
+        total += x
+      while t < 10:
+        t = delay()
+
+      # try-except를 사용하는 방식
+      try:
+        something()
+      finally:
+        cleanup()
+    ```
+- 식(expression)을 한 줄에 다 쓸 수 없다면 식을 괄호로 둘러싸고 줄바꿈과 들여쓰기를 추가해서 가독성있게 만들어라
+- 여러 줄에 걸쳐 식을 쓸 때는 줄이 계속된다는 표시를 하는 `\` 보다는 `괄호를 사용`할 것
+
+## Import 
+
