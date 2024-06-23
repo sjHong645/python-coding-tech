@@ -49,6 +49,8 @@ for key, value in a.__dict__.items():
 
 ## 유사 딕셔너리를 주의하세요 - from collection.abc import MutableMapping 
 
+유사 딕셔너리를 정의할 때 특정 기준으로 정렬하도록 설정했다면 표준 dict를 기준으로 만들었던 여러 기능들이 제대로 동작하지 않을 수 있다. 
+
 - 표준 dict를 사용했을 때 
 ex. 가장 귀여운 아기 동물을 뽑는 콘테스트의 결과를 보여주는 프로그램을 작성 
 ``` python 
