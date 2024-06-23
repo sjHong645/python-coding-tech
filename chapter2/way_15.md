@@ -121,10 +121,13 @@ class SortedDict(MutableMapping):
 하지만, 실행 결과는 요구 사항에 맞지 않는다. 
 
 ``` python
-sorted_ranks = SortedDict()
-populate_ranks(votes, sorted_ranks)
-print(sorted_ranks.data)
-winner = get_winner(sorted_ranks)
+sorted_ranks = SortedDict() # 표준 dict가 아닌 SortedDict() 클래스를 가지고 빈 dict를 만들었다. 
+populate_ranks(votes, sorted_ranks) # 방금 만든 dict에 득표수를 기준으로 순서를 설정해서 key-value를 삽입 
+print(sorted_ranks.data) 
+winner = get_winner(sorted_ranks) # 당연히 득표수가 가장 많은 key가 출력될 줄 알았지만
+                                  # 그렇지 않았다.
+                                  # 알파벳 순서가 가장 앞에 있는 fox가 출력되었다.
+                                  # 그렇게 정렬되도록 SortedDict 내부에서 설정했기 때문이다. 
 print(winner)
 
 # Output
@@ -132,7 +135,78 @@ print(winner)
 # fox
 ```
 
-- 문제점 : get_winner를 populate_ranks의 삽입 순서에 따라 딕셔너리를 iteration한다고 가정함 
-  - 이 코드는 dict 대신 SortedDict를 사용해서 이 가정은 더 이상 성립하지 않음 
+
+- 이 문제를 해결하는 3가지 방법
+
+1. ranks 딕셔너리가 어떤 특정 순서로 iteration된다고 가정하지 않고 get_winner 함수 구현
+
+가장 보수적이고 가장 튼튼한 해법 
+
+``` python
+def get_winner(ranks):
+    for name, rank in ranks.items():
+        if rank == 1: # 순서로 결정하는게 아니라
+                      # 등수 값을 가지고 결정 
+            return name
+
+winner = get_winner(sorted_ranks)
+print(winner)
+```
+
+2. 함수 맨 앞에 ranks의 타입이 원하는 타입인지 검사하는 코드를 추가. 그렇지 않으면 예외 
+
+보수적인 접근 방법보다 실행 성능이 더 좋다. 
+
+``` python
+def get_winner(ranks):
+
+    # ranks의 타입이 dict가 아니라면 Exception을 출력 
+    if not isinstance(ranks, dict):
+        raise TypeError('dict 인스턴스가 필요합니다')
+    return next(iter(ranks))
+```
+
+3. `타입 annotation`을 사용해서 get_winner에 전달되는 값이 dictinary와 비슷한 동작을 하는 MutableMapping 인스턴스가 아니라 dict 인스턴스가 되도록 강제하는 방법 + mypy strict 모드 
+
+``` python
+from typing import Dict, MutableMapping
+
+def populate_ranks(votes: Dict[str, int],
+                   ranks: Dict[str, int]) -> None:
+    names = list(votes.keys())
+    names.sort(key=votes.get, reverse=True)
+    for i, name in enumerate(names, 1):
+        ranks[name] = i
+
+def get_winner(ranks: Dict[str, int]) -> str:
+    return next(iter(ranks))
+
+class SortedDict(MutableMapping[str, int]):
+    ... 
+
+votes = {
+    'otter': 1281,
+    'polar bear': 587,
+    'fox': 863,
+}
+
+sorted_ranks = SortedDict()
+populate_ranks(votes, sorted_ranks) # mypy strict 모드에서 ranks에 전달된 모드가 정확히 맞지 않음 
+print(sorted_ranks.data)
+winner = get_winner(sorted_ranks) # mypy strict 모드에서 ranks에 전달된 모드가 정확히 맞지 않음 
+print(winner)
+
+# Output
+# {'otter': 1, 'fox': 2, 'polar bear': 3}
+# otter
+
+# 엄격한 type checking을 위해 mypy 도구를 strict 모드로 사용했다. 
+# python -m mypy --strict example.py
+# example.py:48: error: Argument 2 to "populate_ranks" has incompatible type "SortedDict"; expected "Dict[str, int]"
+# example.py:50: error: Argument 1 to "get_winner" has incompatible type "SortedDict"; expected "Dict[str, int]"
+
+```
+
+정적 타입 안정성과 런타임 성능을 가장 잘 조합해준다. 
 
 
