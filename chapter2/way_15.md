@@ -87,7 +87,7 @@ print(winner)
 
 프로그램의 요구 사항이 변경되어 `알파벳순`으로 결과를 표시해야 한다고 하자. 
 
-이 경우에 `collections.abc 모듈`을 사용해 딕셔너리와 비슷하지만 내용을 알파벳 순서대로 iteratino해주는 클래스를 새로 정의할 수 있다. 
+이 경우에 `collections.abc 모듈`을 사용해 딕셔너리와 비슷하지만 내용을 알파벳 순서대로 iteration해주는 클래스를 새로 정의할 수 있다. 
 
 ``` python
 from collections.abc import MutableMapping
