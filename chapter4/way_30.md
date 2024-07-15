@@ -62,8 +62,35 @@ print(result[:10])
 
 때문에, 전달된 값의 크기가 매우 크면 프로그램이 메모리를 소진해서 중단될 수 있다. 
 
+아래와 같이 `제너레이터 버전`으로 만들면 사용하는 메모리 크기를 어느정도 제한할 수 있어서  
+입력 길이가 아무리 길어도 쉽게 처리할 수 있다. 
 
+ex. 파일에서 한 번에 한 줄씩 읽어서 한 단어를 출력하는 제너레이터 
+``` python
+def index_file(handle):
+    offset = 0
+    for line in handle:
+        if line:
+            yield offset
+        for letter in line:
+            offset += 1
+            if letter == ' ':
+                yield offset
+```
 
+위 함수가 사용하는 메모리는 입력된 데이터 중에서 `가장 긴 줄의 길이`로 제한된다.  
+또한 입출력 데이터를 별도로 저장하지 않기 때문에 입력 데이터 크기가 커도 출력 시퀀스를 만들 수 있다. 
+
+- 실행 결과 
+``` python
+with open('address.txt', 'r', encoding='utf-8') as f:
+    it = index_file(f)
+    results = itertools.islice(it, 0, 10) # 이렇게 제너레이터를 iterator에서 사용하고 나면
+                                          # 재사용할 수 없다.   
+    print(list(results))
+
+# 출력 : [0, 8, 18, 23, 28, 38]
+```
 
 
 
