@@ -201,9 +201,61 @@ send의 동작을 이해하기도 어려운데 yield from과 같이 사용했을
 
 ## 다른 방법 
 
+- 가장 쉬운 해결책 : wave 함수에 이터레이터 전달하기
 
+이 이터레이터는 자신에게 next 함수가 호출될 때 마다 입력으로 받은 진폭을 하나씩 돌려준다.  
+이런 식으로 이전 제너레이터를 다음 제너레이터의 입력으로 연결하면 입력과 출력이 차례대로 처리될 수 있다. 
 
+``` python
+def wave_cascading(amplitude_it, steps):
+    step_size = 2 * math.pi / steps
+    for step in range(steps):
+        radians = step * step_size
+        fraction = math.sin(radians)
+        amplitude = next(amplitude_it)  # 다음 입력 받기
+        output = amplitude * fraction
+        yield output
+```
 
+이터레이터는 순회(iteration)하면서 상태(state)를 유지한다. 즉, 어디까지 순회했는지 기억하고 있다.  
+그래서 내포된 각각의 제너레이터는 앞에 있던 제너레이터가 처리를 끝낸 시점부터 데이터를 가져와 처리한다. 
+``` python 
+def complex_wave_cascading(amplitude_it):
+    yield from wave_cascading(amplitude_it, 3)
+    yield from wave_cascading(amplitude_it, 4)
+    yield from wave_cascading(amplitude_it, 5)
+```
+
+amplitudes 리스트에서 얻은 이터레이터를  
+합성한 제너레이터에 넘기기만 하면 전체를 실행할 수 있다. 
+``` python 
+def run_cascading():
+    amplitudes = [7, 7, 7, 2, 2, 2, 2, 10, 10, 10, 10, 10]
+    it = complex_wave_cascading(iter(amplitudes))
+    for amplitude in amplitudes:
+        output = next(it)
+        transmit(output)
+
+run_cascading()
+# 출력:
+# 출력: 0.0
+# 출력: 6.1
+# 출력: -6.1
+# 출력: 0.0
+# 출력: 2.0
+# 출력: 0.0
+# 출력: -2.0
+# 출력: 0.0
+# 출력: 9.5
+# 출력: 5.9
+# 출력: -5.9
+# 출력: -9.5
+```
+
+위 코드는 입력 제너레이터가 `thread-safe` 하다고 가정한 상태에서 동작한 코드이다.  
+그렇지 않은 상황인 경우 예상했던 이터레이터의 상태와 다른 상태에 위치하면서 예상과 다른 결과가 출력될 수 있다.  
+
+따라서, 스레드의 경계를 넘으면서 제너레이터를 사용한다면 async 함수가 더 나은 해법일 수 있다. 
 
 
 
